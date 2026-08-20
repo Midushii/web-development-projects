@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play | For Janhvi</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0 40px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: white;
+    border: 2px solid var(--rose);
+    color: var(--berry);
+    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  .tab-btn.active, .tab-btn:hover { background: var(--berry); color: white; border-color: var(--berry); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  
+  .ws-wrap {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  #ws-grid {
+    display: grid;
+    gap: 4px;
+    user-select: none;
+    background: white;
+    padding: 14px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+  }
+  .ws-cell {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-family: 'Quicksand', sans-serif;
+    border-radius: 8px;
+    background: var(--cream-2);
+    color: var(--plum);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .ws-cell.selected { background: var(--rose); color: white; }
+  .ws-cell.found { background: var(--gold); color: white; }
+  .ws-words { min-width: 220px; }
+  .ws-words h3 { margin-top: 0; }
+  .ws-words ul { list-style: none; padding: 0; margin: 0; }
+  .ws-words li {
+    padding: 8px 14px;
+    margin-bottom: 6px;
+    background: var(--cream-2);
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .ws-words li.done {
+    background: var(--gold-soft);
+    text-decoration: line-through;
+    color: var(--gold);
+  }
+  #ws-status { margin-top: 16px; font-weight: 700; color: var(--berry); text-align: center; }
+  .ws-reset { text-align: center; margin-top: 16px; }
+
+  
+  .booth-wrap {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .booth-cam {
+    background: white;
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+    text-align: center;
+    max-width: 420px;
+  }
+  #video, #poster-canvas {
+    width: 100%;
+    max-width: 380px;
+    border-radius: 16px;
+    background: var(--plum);
+  }
+  .booth-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .style-picker {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .style-swatch {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+  }
+  .style-swatch.active { border-color: var(--plum); }
+  .file-fallback { margin-top: 10px; font-size: 0.85rem; color: #7a5566; }
+
+  .booth-result {
+    background: white;
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+    text-align: center;
+    max-width: 420px;
+  }
+  .booth-result h3 { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">Jaan-hvi 🩷</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="box.html">Memory Box</a></li>
+    <li><a href="games.html">Play</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="box-hero" style="text-align:center;">
+    <p class="eyebrow">for when you're bored</p>
+    <h1 style="font-style:italic;">little games, made with you in mind</h1>
+    <p style="max-width:520px;margin:0 auto;color:var(--berry);font-weight:600;">a desi-drama word search, and a dramatic photo booth for the theatre kid in you.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-panel="wordsearch-panel">🔍 word search</button>
+    <button class="tab-btn" data-panel="booth-panel">🎬 drama photo booth</button>
+  </div>
+
+  
+  <section class="panel active" id="wordsearch-panel">
+    <div class="ws-wrap">
+      <div id="ws-grid" role="grid" aria-label="word search grid"></div>
+      <div class="ws-words">
+        <h3>find these:</h3>
+        <ul id="ws-list"></ul>
+        <p id="ws-status"></p>
+        <div class="ws-reset">
+          <button class="btn secondary" id="ws-reset-btn">new grid</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="panel" id="booth-panel">
+    <div class="booth-wrap">
+      <div class="booth-cam">
+        <h3>step 1: strike a pose</h3>
+        <video id="video" autoplay playsinline muted></video>
+        <div class="booth-controls">
+          <button class="btn" id="start-cam">enable camera</button>
+          <button class="btn secondary" id="snap">📸 capture</button>
+        </div>
+        <p class="file-fallback">camera not working / on desktop without one? <label style="text-decoration:underline;cursor:pointer;">upload a selfie instead<input type="file" id="file-input" accept="image/*" style="display:none;"></label></p>
+        <div class="style-picker" id="style-picker"></div>
+      </div>
+
+      <div class="booth-result">
+        <h3>step 2: your drama poster</h3>
+        <canvas id="poster-canvas" width="380" height="475"></canvas>
+        <div class="booth-controls">
+          <button class="btn secondary" id="reroll-title">🔁 new title & tagline</button>
+          <a class="btn" id="download-poster" download="janhvi-drama-poster.png">⬇ save poster</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="footer-note">no real actors were harmed, edited, or deepfaked in the making of this booth 🩷 just you, being iconic.</p>
+</main>
+
+<canvas id="hidden-canvas" width="380" height="475" style="display:none;"></canvas>
+
+<script src="js/common.js"></script>
+<script>
+// ---------------- TABS ----------------
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.panel).classList.add('active');
+    playPop(500);
+  });
+});
+
+
+const WS_SIZE = 12;
+const wordBank = ['SAAS','BAHU','RISHTA','NIKAAH','DRAMA','TWIST','SASURAL','VILLAIN','CHAI','PYAAR','ISHQ','DUPATTA'];
+
+let wsGrid, wsPlacements, wsFoundWords;
+
+function buildWordSearch() {
+  wsGrid = Array.from({ length: WS_SIZE }, () => Array(WS_SIZE).fill(''));
+  wsPlacements = [];
+  wsFoundWords = new Set();
+
+  const dirs = [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]];
+  const words = [...wordBank].sort(() => Math.random() - 0.5).slice(0, 8);
+
+  words.forEach(word => {
+    let placed = false, attempts = 0;
+    while (!placed && attempts < 200) {
+      attempts++;
+      const dir = dirs[Math.floor(Math.random() * dirs.length)];
+      const row = Math.floor(Math.random() * WS_SIZE);
+      const col = Math.floor(Math.random() * WS_SIZE);
+      const endRow = row + dir[0] * (word.length - 1);
+      const endCol = col + dir[1] * (word.length - 1);
+      if (endRow < 0 || endRow >= WS_SIZE || endCol < 0 || endCol >= WS_SIZE) continue;
+
+      let fits = true;
+      for (let i = 0; i < word.length; i++) {
+        const r = row + dir[0]*i, c = col + dir[1]*i;
+        if (wsGrid[r][c] !== '' && wsGrid[r][c] !== word[i]) { fits = false; break; }
+      }
+      if (!fits) continue;
+
+      for (let i = 0; i < word.length; i++) {
+        const r = row + dir[0]*i, c = col + dir[1]*i;
+        wsGrid[r][c] = word[i];
+      }
+      wsPlacements.push({ word, cells: Array.from({length: word.length}, (_, i) => [row + dir[0]*i, col + dir[1]*i]) });
+      placed = true;
+    }
+  });
+
+  const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (let r = 0; r < WS_SIZE; r++) for (let c = 0; c < WS_SIZE; c++) {
+    if (!wsGrid[r][c]) wsGrid[r][c] = alpha[Math.floor(Math.random() * alpha.length)];
+  }
+
+  renderWordSearch();
+}
+
+let wsSelecting = false;
+let wsSelection = [];
+
+function renderWordSearch() {
+  const gridEl = document.getElementById('ws-grid');
+  gridEl.style.gridTemplateColumns = `repeat(${WS_SIZE}, 34px)`;
+  gridEl.innerHTML = '';
+  for (let r = 0; r < WS_SIZE; r++) {
+    for (let c = 0; c < WS_SIZE; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'ws-cell';
+      cell.textContent = wsGrid[r][c];
+      cell.dataset.r = r; cell.dataset.c = c;
+      cell.addEventListener('mousedown', () => startSelect(r, c));
+      cell.addEventListener('mouseenter', () => continueSelect(r, c));
+      cell.addEventListener('touchstart', (e) => { e.preventDefault(); startSelect(r, c); }, {passive:false});
+      cell.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const t = e.touches[0];
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        if (el && el.classList.contains('ws-cell')) continueSelect(+el.dataset.r, +el.dataset.c);
+      }, {passive:false});
+      gridEl.appendChild(cell);
+    }
+  }
+  document.addEventListener('mouseup', endSelect);
+  document.addEventListener('touchend', endSelect);
+
+  const listEl = document.getElementById('ws-list');
+  listEl.innerHTML = '';
+  wsPlacements.forEach(p => {
+    const li = document.createElement('li');
+    li.textContent = p.word;
+    li.dataset.word = p.word;
+    listEl.appendChild(li);
+  });
+  document.getElementById('ws-status').textContent = `0 / ${wsPlacements.length} found`;
+}
+
+function startSelect(r, c) { wsSelecting = true; wsSelection = [[r,c]]; paintSelection(); }
+function continueSelect(r, c) {
+  if (!wsSelecting) return;
+  const start = wsSelection[0];
+  const dr = Math.sign(r - start[0]), dc = Math.sign(c - start[1]);
+  const len = Math.max(Math.abs(r - start[0]), Math.abs(c - start[1])) + 1;
+  const line = [];
+  for (let i = 0; i < len; i++) line.push([start[0] + dr*i, start[1] + dc*i]);
+  wsSelection = line;
+  paintSelection();
+}
+function endSelect() {
+  if (!wsSelecting) return;
+  wsSelecting = false;
+  checkSelection();
+  paintSelection();
+}
+function paintSelection() {
+  document.querySelectorAll('.ws-cell').forEach(cell => {
+    if (!cell.classList.contains('found')) cell.classList.remove('selected');
+  });
+  wsSelection.forEach(([r,c]) => {
+    const cell = document.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);
+    if (cell && !cell.classList.contains('found')) cell.classList.add('selected');
+  });
+}
+function checkSelection() {
+  const selStr = wsSelection.map(([r,c]) => wsGrid[r][c]).join('');
+  const selStrRev = selStr.split('').reverse().join('');
+  const match = wsPlacements.find(p => (p.word === selStr || p.word === selStrRev) && !wsFoundWords.has(p.word));
+  if (match) {
+    wsFoundWords.add(match.word);
+    match.cells.forEach(([r,c]) => {
+      document.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`).classList.add('found');
+    });
+    document.querySelector(`#ws-list li[data-word="${match.word}"]`).classList.add('done');
+    document.getElementById('ws-status').textContent = `${wsFoundWords.size} / ${wsPlacements.length} found`;
+    playPop(700);
+    if (wsFoundWords.size === wsPlacements.length) {
+      setTimeout(() => showToast("all found!! certified drama expert 🏆", 3000), 300);
+    }
+  }
+}
+document.getElementById('ws-reset-btn').addEventListener('click', buildWordSearch);
+buildWordSearch();
+
+
+const video = document.getElementById('video');
+const startCamBtn = document.getElementById('start-cam');
+const snapBtn = document.getElementById('snap');
+const fileInput = document.getElementById('file-input');
+const hiddenCanvas = document.getElementById('hidden-canvas');
+const posterCanvas = document.getElementById('poster-canvas');
+const downloadBtn = document.getElementById('download-poster');
+let currentImage = null;
+let currentStyleIdx = 0;
+
+const styles = [
+  { name: 'Rose Royale', bg: ['#8B3A52', '#D98E9C'], text: '#FFF6F2', accent: '#D4A574' },
+  { name: 'Golden Hour', bg: ['#D4A574', '#8B3A52'], text: '#FFF6F2', accent: '#FFF6F2' },
+  { name: 'Midnight Saas', bg: ['#3D1F2E', '#8B3A52'], text: '#F0DCC0', accent: '#E8B4BC' },
+  { name: 'Blush Villain', bg: ['#E8B4BC', '#8B3A52'], text: '#3D1F2E', accent: '#FFFFFF' }
+];
+const titles = [
+  'ISHQ AUR AAG', 'MAIN AUR MERA GUSSA', 'DIL KI RANI', 'SAZISH', 'YEH RISHTA KYA HAI',
+  'BEPANAAH MOHABBAT', 'TERE BINA', 'HUM TUM AUR DRAMA', 'AANSU AUR MUSKAAN'
+];
+const taglines = [
+  'ek larki, ek attitude, ek hi jawaab: nahi.',
+  'har drama ki heroine, apni zindagi ki bhi.',
+  'muskurahat se dil jeetne wali.',
+  'thoda sa drama, bohot saara pyaar.',
+  'is dil mein aag bhi hai aur sukoon bhi.',
+  'sabse bohsat, sabse cute, thoda dramatic.'
+];
+let posterState = { title: titles[0], tagline: taglines[0] };
+
+// style swatches
+const stylePicker = document.getElementById('style-picker');
+styles.forEach((s, i) => {
+  const sw = document.createElement('div');
+  sw.className = 'style-swatch' + (i === 0 ? ' active' : '');
+  sw.style.background = `linear-gradient(135deg, ${s.bg[0]}, ${s.bg[1]})`;
+  sw.title = s.name;
+  sw.addEventListener('click', () => {
+    currentStyleIdx = i;
+    document.querySelectorAll('.style-swatch').forEach(x => x.classList.remove('active'));
+    sw.classList.add('active');
+    drawPoster();
+  });
+  stylePicker.appendChild(sw);
+});
+
+startCamBtn.addEventListener('click', async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    video.srcObject = stream;
+    showToast('camera on! strike your best drama pose 🎬', 2200);
+  } catch (err) {
+    showToast("couldn't access camera — try the upload option below instead", 3200);
+  }
+});
+
+snapBtn.addEventListener('click', () => {
+  if (!video.srcObject) { showToast('turn on the camera first, or upload a selfie below', 2600); return; }
+  const ctx = hiddenCanvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+  const img = new Image();
+  img.onload = () => { currentImage = img; drawPoster(); };
+  img.src = hiddenCanvas.toDataURL('image/png');
+});
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => { currentImage = img; drawPoster(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('reroll-title').addEventListener('click', () => {
+  posterState.title = titles[Math.floor(Math.random() * titles.length)];
+  posterState.tagline = taglines[Math.floor(Math.random() * taglines.length)];
+  drawPoster();
+  playPop(550);
+});
+
+function drawPoster() {
+  const ctx = posterCanvas.getContext('2d');
+  const W = posterCanvas.width, H = posterCanvas.height;
+  const style = styles[currentStyleIdx];
+
+  // background gradient
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, style.bg[0]);
+  grad.addColorStop(1, style.bg[1]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  
+  if (currentImage) {
+    const photoH = H * 0.62;
+    const iw = currentImage.width, ih = currentImage.height;
+    const scale = Math.max(W / iw, photoH / ih);
+    const dw = iw * scale, dh = ih * scale;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 60, W, photoH);
+    ctx.clip();
+    ctx.drawImage(currentImage, (W - dw) / 2, 60 + (photoH - dh) / 2, dw, dh);
+    ctx.restore();
+
+    // vignette gradient over photo bottom
+    const vgrad = ctx.createLinearGradient(0, 60, 0, 60 + photoH);
+    vgrad.addColorStop(0.6, 'rgba(0,0,0,0)');
+    vgrad.addColorStop(1, style.bg[1]);
+    ctx.fillStyle = vgrad;
+    ctx.fillRect(0, 60, W, photoH);
+  } else {
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.font = '20px Quicksand, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('capture or upload a photo above', W/2, H*0.4);
+  }
+
+  
+  ctx.fillStyle = style.accent;
+  for (let i = 0; i < 14; i++) {
+    const x = Math.random() * W, y = Math.random() * (H * 0.65);
+    const r = 1.5 + Math.random() * 2.5;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.globalAlpha = 0.5 + Math.random() * 0.5;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  
+  ctx.fillStyle = style.accent;
+  ctx.font = 'bold 12px Quicksand, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('A JANHVI PRODUCTION', W/2, 34);
+
+  
+  ctx.fillStyle = style.text;
+  ctx.font = 'italic bold 34px Georgia, "Playfair Display", serif';
+  wrapText(ctx, posterState.title, W/2, H*0.72, W - 50, 38);
+
+  
+  ctx.font = 'italic 15px Georgia, serif';
+  ctx.fillStyle = style.accent;
+  wrapText(ctx, posterState.tagline, W/2, H*0.88, W - 70, 20);
+
+  
+  ctx.strokeStyle = style.accent;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(8, 8, W - 16, H - 16);
+
+  downloadBtn.href = posterCanvas.toDataURL('image/png');
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '', lines = [];
+  words.forEach(w => {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxWidth && line !== '') {
+      lines.push(line); line = w + ' ';
+    } else line = test;
+  });
+  lines.push(line);
+  const startY = y - (lines.length - 1) * lineHeight / 2;
+  lines.forEach((l, i) => ctx.fillText(l.trim(), x, startY + i * lineHeight));
+}
+
+drawPoster();
+</script>
+</body>
+</html>
