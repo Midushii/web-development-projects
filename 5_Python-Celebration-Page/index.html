@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Congrats, Python Dev 🐍</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <canvas id="confetti"></canvas>
+
+  <div class="stage">
+
+    <div class="eyebrow">// achievement unlocked</div>
+
+    <h1>
+      You shipped it, <span>Python dev</span>.
+    </h1>
+
+    <div class="terminal">
+
+      <div class="titlebar">
+        <div class="dot r"></div>
+        <div class="dot y"></div>
+        <div class="dot g"></div>
+        <div class="fname">celebration.py</div>
+      </div>
+
+      <div class="body">
+        <span class="prompt">$</span> python celebration.py<br>
+        <span id="typed"></span>
+      </div>
+
+    </div>
+
+    <div class="badge-row" id="badgeRow">
+      <div class="badge">🐍</div>
+
+      <div class="badge-text">
+        <b>Course: Complete</b>
+        Every loop, function, and bug — conquered.
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="run" id="runBtn">▶ Run again</button>
+      <button class="again" onclick="burst(1.6)">
+        🎉 More confetti
+      </button>
+    </div>
+
+    <footer>
+      made with print() statements and pride, for you
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
