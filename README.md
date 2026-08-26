@@ -6,6 +6,7 @@ A collection of web development projects built to explore frontend development, 
 
 * Responsive websites and landing pages
 * Interactive frontend applications
+* Web-based games and interactive experiences
 * HTML, CSS, and JavaScript projects
 
 ## Tech Stack
