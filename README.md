@@ -40,7 +40,6 @@ An Airbnb-inspired stay-listing platform with listings CRUD, search, category fi
 
 <a href="https://github.com/Midushii/WanderLust"><img src="https://raw.githubusercontent.com/Midushii/WanderLust/main/public/css/1.png" alt="WanderLust"></a>
 <br>
-<br>
 
 **Stack:** Node.js · Express · MongoDB · Passport.js · Cloudinary · EJS
 
